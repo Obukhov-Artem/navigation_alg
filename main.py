@@ -1,5 +1,65 @@
 import copy
 
+class Traktor_path():
+    def __init__(self, matrix):
+        self.matrix = matrix
+
+        # Координаты входа [2,0], координаты выхода [7,0]. В которой 1 - это стена, 0 - это путь.
+        # координаты входа
+        pozIn, pozOut = (10, 1), (0, 9)
+        # pozIn, pozOut = (3, 1), (0, 5)
+
+        path = transform_lab(self.matrix)
+        eval = evalution_lab(path)
+        eval_final = eval * 2
+        print(eval, eval_final)
+        for i in path:
+            for line in i:
+                print("{:^3}".format(line), end=",")
+            print("")
+        print("-----")
+        print("-----")
+        path[pozIn[0]][pozIn[1]] = 1
+        s_w = 1
+        iter_num = 0
+        while eval != eval_final and iter_num < 5:
+            pozOuts = next_finish2(path, pozIn)
+            iter_num += 1
+            eval = evalution_lab(path)
+            print(iter_num, " iteration")
+            print(eval, eval_final, pozOuts, s_w)
+            variants = []
+            for pos in pozOuts:
+                path2 = found(path, pos, s_w)
+                for p in path2:
+                    if evalution_lab(p) <= eval:
+                        variants.append([evalution_lab(p), pos, p])
+
+            variants = sorted(variants, key=lambda x: x[0])
+            print("////////////////////")
+            for v in variants:
+                print(v[0], v[1])
+                print("\n".join(",".join("{:^3}".format(line) for line in pp) for pp in v[2]))
+            if variants:
+                path = copy.deepcopy(variants[0][2])
+                pos = variants[0][1]
+
+                print("-----")
+                print("-----")
+                path, s_w = transform_lab2(path)
+                print("Final, goto", pos)
+                for i in path:
+                    for line in i:
+                        print("{:^3}".format(line), end=",")
+                    print("")
+                print("-----")
+                print("-----")
+            else:
+                break
+        turns, out = get_finish(path)
+        result = printPath(path, out)
+        print(result)
+
 
 # общий массив всех вариантов
 ### сохраняем все варианты, рекурсивно от каждого вызываем следующий заход
