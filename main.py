@@ -1,13 +1,14 @@
 import copy
 
-paths = []
-#общий массив всех вариантов
+
+# общий массив всех вариантов
 ### сохраняем все варианты, рекурсивно от каждого вызываем следующий заход
 ###
 
 
 def found(pathArr, finPoint, start_w=1):
     weight = start_w
+    paths = []
     # pathArr = [[0 if x == 1000 else x for x in y] for y in pathArr]
     xy = [(-1, 0), (1, 0), (0, 1), (0, -1)]
     for i in range(len(pathArr) * len(pathArr[0])):
@@ -24,69 +25,63 @@ def found(pathArr, finPoint, start_w=1):
                     # добавить приоритеты направлений
                     move = []
                     try:
-                        if x< finPoint[1]:
-                            move.append((x < (len(pathArr[y]) - 1) and pathArr[y][x + 1]==0, y,x + 1))
-                            move.append((x < (len(pathArr[y]) - 1) and pathArr[y][x + 1]<=-1
-                                         and pathArr[y+1][x + 1]==0, y+1,x + 1))
-                            move.append((x < (len(pathArr[y]) - 1) and pathArr[y][x + 1]<=-1
-                                         and pathArr[y-1][x + 1]==0, y-1,x + 1))
-                        if x> finPoint[1]:
-                            move.append((x > 0 and pathArr[y][x - 1] == 0, y,x - 1))
+                        if x <= finPoint[1]:
+                            move.append((x < (len(pathArr[y]) - 1)
+                                         and pathArr[y][x + 1] == 0, y, x + 1))
+                            move.append((x < (len(pathArr[y]) - 1)
+                                         and y<(len(pathArr) - 1)
+                                         and pathArr[y][x + 1] <= -1
+                                         and pathArr[y + 1][x] == 0, y + 1, x))
+                            move.append((x < (len(pathArr[y]) - 1)
+                                         and y>0
+                                         and pathArr[y][x + 1] <= -1
+                                         and pathArr[y - 1][x] == 0, y - 1, x))
+                        if x > finPoint[1]:
+                            move.append((x > 0 and pathArr[y][x - 1] == 0, y, x - 1))
                             move.append((x > 0 and pathArr[y][x - 1] <= -1
-                                         and pathArr[y+1][x - 1] == 0, y+1,x - 1))
+                                         and y<(len(pathArr) - 1)
+                                         and pathArr[y + 1][x] == 0, y + 1, x))
                             move.append((x > 0 and pathArr[y][x - 1] <= -1
-                                         and pathArr[y-1][x - 1] == 0, y-1,x - 1))
-                        if y< finPoint[0]:
+                                         and y > 0
+                                         and pathArr[y - 1][x] == 0, y - 1, x))
+                        if y <= finPoint[0]:
                             move.append((y < (len(pathArr) - 1) and pathArr[y + 1][x] == 0, y + 1, x))
                             move.append((y < (len(pathArr) - 1)
                                          and pathArr[y + 1][x] <= -1
-                                         and pathArr[y + 1][x-1] == 0, y + 1, x-1))
+                                         and x>0
+                                         and pathArr[y][x - 1] == 0, y, x - 1))
                             move.append((y < (len(pathArr) - 1)
                                          and pathArr[y + 1][x] <= -1
-                                         and pathArr[y + 1][x+1] == 0, y + 1, x+1))
-                        if y> finPoint[0]:
+                                         and x<(len(pathArr[y]) - 1)
+                                         and pathArr[y][x + 1] == 0, y, x + 1))
+                        if y > finPoint[0]:
                             move.append((y > 0 and pathArr[y - 1][x] == 0, y - 1, x))
                             move.append((y > 0 and pathArr[y - 1][x] <= -1
-                                         and pathArr[y - 1][x-1] == 0, y - 1, x-1))
+                                         and pathArr[y][x - 1] == 0, y, x - 1))
                             move.append((y > 0 and pathArr[y - 1][x] <= -1
-                                         and pathArr[y - 1][x+1] == 0, y - 1, x+1))
+                                         and pathArr[y][x + 1] == 0, y, x + 1))
                     except Exception:
                         pass
                     if not move:
                         move = [(y > 0 and pathArr[y - 1][x] == 0, y - 1, x),
                                 (y < (len(pathArr) - 1) and pathArr[y + 1][x] == 0, y + 1, x),
-                                (x > 0 and pathArr[y][x - 1] == 0, y,x - 1),
-                                (x < (len(pathArr[y]) - 1) and pathArr[y][x + 1]==0, y,x + 1)]
+                                (x > 0 and pathArr[y][x - 1] == 0, y, x - 1),
+                                (x < (len(pathArr[y]) - 1) and pathArr[y][x + 1] == 0, y, x + 1)]
                     v = 0
-                    for m,yy,xx in move:
+                    for m, yy, xx in move:
                         if m:
-                            if v>0:
-                                paths.append(pathArr)
-                                v = 0
+                            if v > 0:
+                                pathArr2 = copy.deepcopy(pathArr)
+                                pathArr2[yy][xx] = weight
+                                paths.extend(found(pathArr2, finPoint, start_w=weight))
                             else:
 
                                 pathArr[yy][xx] = weight
                                 v += 1
 
+    paths.append(copy.deepcopy(pathArr))
 
-
-                    """
-                    
-                
-                    if y > 0 and pathArr[y - 1][x] == 0:
-                        pathArr[y - 1][x] = weight
-                    elif y < (len(pathArr) - 1) and pathArr[y + 1][x] == 0:
-                        pathArr[y + 1][x] = weight
-                    elif x > 0 and pathArr[y][x - 1] == 0:
-                        pathArr[y][x - 1] = weight
-                    elif x < (len(pathArr[y]) - 1) and pathArr[y][x + 1] == 0:
-                        pathArr[y][x + 1] = weight
-"""
-                   # if (abs(y - finPoint[0]) + abs(x - finPoint[1])) == 1:
-                   #     #   pathArr[finPoint[0]][finPoint[1]] = weight
-                    #    return True
-
-    return True
+    return paths
 
 
 def printPath(pathArr, finPoint):
@@ -199,6 +194,15 @@ def next_finish2(labirint, start_pos):
 
     return mass_edge
 
+def get_finish(labirint):
+    y,x = 0,0
+    value = 0
+    for i in range(len(labirint)):
+        for j in range(len(labirint[i])):
+            if labirint[i][j]>value:
+                value = labirint[i][j]
+                y,x = i,j
+    return value, (y,x)
 
 def main():
     # Выход из лабиринта .Волновой алгоритм
@@ -215,13 +219,17 @@ def main():
         [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
-
+    #labirint = [
+     #   [1, 0, 0, 0, 1, 0],
+    #    [1, 0, 1, 0, 1, 0],
+    #    [1, 0, 1, 0, 1, 0],
+   #     [1, 0, 1, 0, 0, 0],
+   # ]
     # Координаты входа [2,0], координаты выхода [7,0]. В которой 1 - это стена, 0 - это путь.
     # координаты входа
-    pozIn = (10, 1)
-    pozOut = (0, 9)
+    pozIn, pozOut = (10, 1), (0, 9)
+   # pozIn, pozOut = (3, 1), (0, 5)
 
-    # path = [[x if x == 0 else -1 for x in y] for y in labirint]
     path = transform_lab(labirint)
     eval = evalution_lab(path)
     eval_final = eval * 2
@@ -235,7 +243,7 @@ def main():
     path[pozIn[0]][pozIn[1]] = 1
     s_w = 1
     iter_num = 0
-    while eval != eval_final and iter_num < 5:
+    while eval!=eval_final and iter_num < 5:
         pozOuts = next_finish2(path, pozIn)
         iter_num += 1
         eval = evalution_lab(path)
@@ -243,36 +251,35 @@ def main():
         print(eval, eval_final, pozOuts, s_w)
         variants = []
         for pos in pozOuts:
-            path2 = copy.deepcopy(path)
-            if found(path2, pos, s_w):
-                print(len(paths))
-                # if evalution_lab(path2)<= eval:
-                variants.append([evalution_lab(path2), path2, pos])
-                print("Goto", pos)
-                for i in path2:
-                    for line in i:
-                        print("{:^3}".format(line), end=",")
-                    print("")
+            path2 = found(path, pos, s_w)
+            for p in path2:
+                if evalution_lab(p)<= eval:
+                    variants.append([evalution_lab(p), pos, p])
 
         variants = sorted(variants, key=lambda x: x[0])
         print("////////////////////")
-        print(variants)
-        path = copy.deepcopy(variants[0][1])
-        pos = variants[0][2]
+        for v in variants:
+            print(v[0],v[1])
+            print("\n".join(",".join("{:^3}".format(line) for line in pp) for pp in v[2]))
+        if variants:
+            path = copy.deepcopy(variants[0][2])
+            pos = variants[0][1]
 
-        print("-----")
-        print("-----")
-        path, s_w = transform_lab2(path)
-        print("Final, goto", pos)
-        for i in path:
-            for line in i:
-                print("{:^3}".format(line), end=",")
-            print("")
-        print("-----")
-        print("-----")
-
-    print()
-    result = printPath(path, pozOut)
+            print("-----")
+            print("-----")
+            path, s_w = transform_lab2(path)
+            print("Final, goto", pos)
+            for i in path:
+                for line in i:
+                    print("{:^3}".format(line), end=",")
+                print("")
+            print("-----")
+            print("-----")
+        else:
+            break
+    turns, out = get_finish(path)
+    result = printPath(path, out)
+    print(result)
 
 
 if __name__ == '__main__':
