@@ -6,7 +6,8 @@ import copy
 ###
 
 
-def found(pathArr, finPoint, start_w=1):
+def found(pathArr_0, finPoint, start_w=1):
+    pathArr = copy.deepcopy(pathArr_0)
     weight = start_w
     paths = []
     # pathArr = [[0 if x == 1000 else x for x in y] for y in pathArr]
@@ -68,7 +69,7 @@ def found(pathArr, finPoint, start_w=1):
                                 (x > 0 and pathArr[y][x - 1] == 0, y, x - 1),
                                 (x < (len(pathArr[y]) - 1) and pathArr[y][x + 1] == 0, y, x + 1)]
                     v = 0
-                    for m, yy, xx in move:
+                    for m, yy, xx in set(move):
                         if m:
                             if v > 0:
                                 pathArr2 = copy.deepcopy(pathArr)
@@ -78,6 +79,8 @@ def found(pathArr, finPoint, start_w=1):
 
                                 pathArr[yy][xx] = weight
                                 v += 1
+                                break
+
 
     paths.append(copy.deepcopy(pathArr))
 
